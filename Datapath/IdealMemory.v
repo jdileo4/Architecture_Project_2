@@ -15,15 +15,13 @@ module InstrMem (Mem_Addr, Dout);
    
    reg [WordSize-1:0] 	 Mem[0:MemSize-1];   // register array (SRAM) 
    
-   //`include "imeminit.v"
-   // Include your test program file here instead of "imeminit.v"
-    `include "imeminit_simple_test.v"
+   `include "imeminit.v"
+	
 always
       #T_rd assign  Dout = Mem[ Mem_Addr >> 2 ];
 endmodule // Imem
 
-// DataMem is an asynchronous read, synchronous write memory model //
-// This memory cannot be read and written to simultaneously        //
+
 module DataMem (Mem_Addr, CLK, Mem_rd, Mem_wr, Mem_DIN, Mem_DOUT);
 
    parameter T_rd = 10, T_wr = 10;
@@ -42,15 +40,19 @@ module DataMem (Mem_Addr, CLK, Mem_rd, Mem_wr, Mem_DIN, Mem_DOUT);
       
    always @( Mem_Addr or Mem_rd )
 	 if ( ~Mem_wr && Mem_rd )
+	 begin
 	    Mem_DOUT <=  #T_rd Mem[Mem_Addr >> 2];
+		$display("load word");
+	 end
 
    
    always @(negedge CLK)
      if (Mem_wr == 1)
 	 begin
-	    // $display ($time, " . . . ", ..., Mem_DIN); 
+	     $display ($time, "Storing value %d at address %d", Mem_DIN, Mem_Addr); 
 	    Mem[Mem_Addr >> 2] <= #T_wr Mem_DIN;
 	 end
 
    
 endmodule // Dmem
+

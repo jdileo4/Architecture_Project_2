@@ -42,6 +42,15 @@
 // Top Level Architecture Model //
 
 `include "IdealMemory.v"
+`include "ProgramCounter.v"
+//`include "mux.v"
+`include "Control.v"
+`include "Register.v"
+//`include "imeminit.v"
+//`include "signextend.v"
+`include "ALU_Control.v"
+//`include "imeminit_simple_test.v"
+
 
 /*-------------------------- CPU -------------------------------
  * This module implements a single-cycle
@@ -77,24 +86,47 @@ module SingleCycleProc(CLK, Reset_L, startPC, dmemOut);
    input 	Reset_L, CLK;
    input [31:0] startPC;
    output [31:0] dmemOut;
+   
+  	wire [31:0] PC, Instr, readData1, readData2, ALURes, immExtend32, ALU_B_in;
+	wire regDst, ALUsrc, Overflow, Carry_out, Zero, regWrite;
+	wire [3:0] ALUOp, ALUInstrType;
+	
+	wire[4:0] writeReg;
+	wire  Branch, Jump;
+	wire [25:0]jumpadd;
+	wire [31:0] signExtImm32;
 
+	assign dmemOut = ALURes;
 
-
-//
+// 
 // INSERT YOUR CPU MODULES HERE
 //
+//	ProgramCounter progCounter(CLK, Reset_L, startPC[31:0], PC[31:0]);
+	ProgramCounter progCounter(CLK, Reset_L, startPC, PC[31:0], Zero,jumpadd, signExtImm32, Branch, Jump);
+	InstrMem instrMem(PC[31:0], Instr[31:0]);
 
-
+	Control control(Instr[31:26], regDst, regWrite, ALUsrc, ALUOp[3:0]);
+	MUX5_2to1 writeRegMux(Instr[20:16], Instr[15:11], regDst, writeReg);
+	Register register (CLK, Reset_L, Instr[25:21], Instr[20:16], writeReg[4:0], 
+						ALURes[31:0], regWrite, readData1[31:0], readData2[31:0]);
+	
+	SIGN_EXTEND signExtend (Instr[15:0], immExtend32[31:0]);
+	MUX32_2to1 ALUargMux (readData2[31:0], immExtend32[31:0], ALUsrc, ALU_B_in[31:0]);
+	ALU_Control ALUControl (Instr[5:0], ALUOp[3:0], ALUInstrType[3:0]);
+	ALU_behav ALU ( readData1[31:0], ALU_B_in[31:0], ALUInstrType[3:0], ALURes[31:0], Overflow, 1'b0, Carry_out, Zero );
+	DataMem  data(ALUResult, CLK, MemRead, MemWr, busB, Mem_DOUT);
+	
 
 //
 // Debugging threads that you may find helpful (you may have
 // to change the variable names).
 //
-   /*  Monitor changes in the program counter
+   /*  Monitor changes in the program counter	*/
    always @(PC)
-     #10 $display($time," PC=%d Instr: op=%d rs=%d rt=%d rd=%d imm16=%d funct=%d",
-	PC,Instr[31:26],Instr[25:21],Instr[20:16],Instr[15:11],Instr[15:0],Instr[5:0]);
-   */
+     #10 $display($time,"PC = %d opcode=%d rd=%d rs=%d rt=%d imm16=%d funct=%d result=%h readData1=%d readData2= %d ALU_B_in = %d",
+	PC[31:0], Instr[31:26], Instr[25:21],Instr[20:16],Instr[15:11],Instr[15:0],Instr[5:0],ALURes[31:0], readData1[31:0], readData2[31:0], ALU_B_in[31:0]
+ );
+   
 
    /*   Monitors memory writes
    always @(MemWrite)
@@ -167,3 +199,5 @@ module TopProcessor;
    testCPU tcpu(Reset_L, startPC, testData); 
 
 endmodule // TopProcessor
+
+

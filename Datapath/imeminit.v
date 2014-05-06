@@ -4,10 +4,11 @@
 
 // NOTE:  Expanded these tests to cover all instructions supported by your datapath //
 
-initial	begin
-// 
+initial begin
+//
 // Test Program 1 - Sums the elements of array A[]
 //
+
    Mem[0] = {6'd0,5'd0,5'd0,5'd5,5'd0,6'd32};
    //			add	$5, $0, $0	# this is the sum
    Mem[1] = {6'd0,5'd0,5'd0,5'd2,5'd0,6'd32};
@@ -16,8 +17,10 @@ initial	begin
    //			lw	$3, 4($0)	# $3 = DMem[1] = num to add
    Mem[3] = {6'd0,5'd3,5'd3,5'd3,5'd0,6'd32};
    //			add	$3, $3, $3	# $3 = 2 * DMem[1]
+				//result ==
    Mem[4] = {6'd0,5'd3,5'd3,5'd3,5'd0,6'd32};
    //			add	$3, $3, $3	# $3 = 4 * DMem[1]
+   
    Mem[5] = {6'd35,5'd0,5'd7,16'd0};
    //			lw	$7, 0($0)	# $7 = DMem[0] = increment
    Mem[6] = {6'd4,5'd2,5'd3,16'd4};
@@ -36,7 +39,7 @@ initial	begin
    //			nop			# 
    Mem[13] = {6'd0,5'd0,5'd0,16'd0};
    //			nop			# 
-   //
+   // 
    // Test Program 2
    //
    Mem[14] = {6'd8,5'd0,5'd1,16'd1};
@@ -57,7 +60,7 @@ initial	begin
    //			sw	$9, 32($0)	# store $9 in DMem[8]
    Mem[22] = {6'd0,5'd0,5'd0,16'd0};
    //			nop			#
-   //
+   // 
    // Test Program 3 (Same as imeminit_simple_test.v)
    //
    Mem[23] = {32'h200a0001};

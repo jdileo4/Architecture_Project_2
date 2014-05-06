@@ -9,8 +9,10 @@ module MUX32_2to1(a0, a1, sel, out);
    reg [31:0] 	 out;
    
    always @(a0 or a1 or sel)
-      if (sel == 0) out = a0;
+    begin
+	  if (sel == 0) out = a0;
       else          out = a1;
+	end
 endmodule // MUX32_2to1
 
 
@@ -21,9 +23,11 @@ module MUX32_3to1(a0, a1, a2, sel, out);
    reg [31:0] 	 out;
    
    always @(a0 or a1 or a2 or sel)
+   begin
       if (sel == 0) out = a0;
       else if (sel == 1) out = a1;
 	   else out = a2;
+	end 
 endmodule // MUX32_3to1
 
 
@@ -34,8 +38,11 @@ module MUX5_2to1(a0, a1, sel, out);
    reg [4:0] 	out;
    
    always @(a0 or a1 or sel)
-      if (sel == 0) out = a0;
+     begin
+	  if (sel == 0) out = a0;
       else          out = a1;
+	end
+	
 endmodule // MUX5_2to1
 
 
